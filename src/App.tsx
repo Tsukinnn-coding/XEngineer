@@ -2,17 +2,22 @@ import { useMemo, useState } from "react";
 import { parseChapters } from "./core/chapterParser";
 import { convertNovelToScreenplay } from "./core/orchestrator";
 import type { ConversionResult } from "./core/types";
-import { sampleNovel } from "./sampleNovel";
+import {
+  fieldWatcherSampleNovel,
+  fieldWatcherSampleTitle,
+  suspenseSampleNovel,
+  suspenseSampleTitle,
+} from "./sampleNovel";
 
 const defaultBaseUrl = "https://api.openai.com/v1";
 
 export default function App() {
-  const [title, setTitle] = useState("雨夜戏院");
+  const [title, setTitle] = useState(suspenseSampleTitle);
   const [format, setFormat] = useState<"screenplay" | "stage" | "audio">("screenplay");
   const [baseUrl, setBaseUrl] = useState(defaultBaseUrl);
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState("gpt-4o-mini");
-  const [novelText, setNovelText] = useState(sampleNovel);
+  const [novelText, setNovelText] = useState(suspenseSampleNovel);
   const [activeTab, setActiveTab] = useState<"yaml" | "preview" | "diagnostics">("yaml");
   const [result, setResult] = useState<ConversionResult | null>(null);
   const [error, setError] = useState("");
@@ -61,6 +66,20 @@ export default function App() {
     URL.revokeObjectURL(url);
   }
 
+  function loadSuspenseSample() {
+    setTitle(suspenseSampleTitle);
+    setNovelText(suspenseSampleNovel);
+    setResult(null);
+    setError("");
+  }
+
+  function loadFieldWatcherSample() {
+    setTitle(fieldWatcherSampleTitle);
+    setNovelText(fieldWatcherSampleNovel);
+    setResult(null);
+    setError("");
+  }
+
   return (
     <main className="app-shell">
       <header className="topbar">
@@ -70,8 +89,11 @@ export default function App() {
           <p>真实模型驱动的小说改编管线，输出可编辑 YAML 剧本初稿。</p>
         </div>
         <div className="topbar-actions">
-          <button type="button" onClick={() => setNovelText(sampleNovel)}>
-            载入示例
+          <button type="button" onClick={loadSuspenseSample}>
+            雨夜示例
+          </button>
+          <button type="button" onClick={loadFieldWatcherSample}>
+            麦田示例
           </button>
           <button type="button" className="primary" onClick={handleGenerate} disabled={isGenerating}>
             {isGenerating ? "生成中..." : "生成剧本 YAML"}
@@ -113,7 +135,7 @@ export default function App() {
 
           <label>
             小说正文
-            <textarea value={novelText} onChange={(event) => setNovelText(event.target.value)} />
+            <textarea wrap="soft" value={novelText} onChange={(event) => setNovelText(event.target.value)} />
           </label>
 
           <div className="metrics">
